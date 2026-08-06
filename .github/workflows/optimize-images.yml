@@ -1,7 +1,7 @@
 name: Tối ưu hóa dung lượng ảnh
 
 on:
-  workflow_dispatch: # Giữ lại nút chạy thủ công
+  workflow_dispatch:
   push:
     paths:
       - 'images/**'
@@ -16,20 +16,23 @@ jobs:
       - name: Checkout mã nguồn
         uses: actions/checkout@v4
 
-      - name: Cài đặt phần mềm nén ảnh
+      - name: Cài đặt phần mềm xử lý ảnh
         run: |
           sudo apt-get update
-          sudo apt-get install -y jpegoptim optipng
+          sudo apt-get install -y jpegoptim optipng imagemagick
 
-      - name: Tiến hành nén ảnh
+      - name: Tiến hành Resize và Nén ảnh
         run: |
-          # Nén ảnh định dạng JPG/JPEG xuống chất lượng 75% và xóa dữ liệu thừa
-          find images/ -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) -exec jpegoptim -m75 --strip-all {} \;
+          # 1. Thu nhỏ kích thước ảnh: Nếu ảnh lớn hơn 1080px sẽ tự động thu nhỏ lại, giữ nguyên tỷ lệ (Dấu > đảm bảo không phóng to ảnh nhỏ)
+          find images/ -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) -exec mogrify -resize "1080x1080>" {} +
           
-          # Nén ảnh định dạng PNG (Tối ưu cấu trúc, giữ nguyên chất lượng)
+          # 2. Nén ảnh JPG: Giảm chất lượng xuống mức 65 (Mức 65 là chuẩn tối ưu cho Web, mắt thường không nhận ra sự khác biệt)
+          find images/ -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) -exec jpegoptim -m65 --strip-all {} \;
+          
+          # 3. Nén ảnh PNG
           find images/ -type f -iname "*.png" -exec optipng -o5 {} \;
 
-      - name: Lưu đè ảnh đã nén lên GitHub
+      - name: Lưu đè ảnh đã xử lý lên GitHub
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Tự động nén ảnh tối ưu dung lượng"
+          commit_message: "Tự động resize và nén ảnh siêu nhẹ"
