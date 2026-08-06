@@ -1,10 +1,10 @@
 name: Tối ưu hóa dung lượng ảnh
 
 on:
-  workflow_dispatch: # Thêm dòng này để hiện nút "Run workflow" chạy bằng tay
+  workflow_dispatch: # Giữ lại nút chạy thủ công
   push:
     paths:
-      - 'images/**' # Vẫn giữ lệnh tự động chạy khi có ảnh mới
+      - 'images/**'
 
 jobs:
   optimize:
@@ -13,13 +13,23 @@ jobs:
       contents: write 
 
     steps:
-      - name: Checkout code
+      - name: Checkout mã nguồn
         uses: actions/checkout@v4
 
-      - name: Nén ảnh (Compress Images)
-        uses: calibreapp/image-actions@main
+      - name: Cài đặt phần mềm nén ảnh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jpegoptim optipng
+
+      - name: Tiến hành nén ảnh
+        run: |
+          # Nén ảnh định dạng JPG/JPEG xuống chất lượng 75% và xóa dữ liệu thừa
+          find images/ -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) -exec jpegoptim -m75 --strip-all {} \;
+          
+          # Nén ảnh định dạng PNG (Tối ưu cấu trúc, giữ nguyên chất lượng)
+          find images/ -type f -iname "*.png" -exec optipng -o5 {} \;
+
+      - name: Lưu đè ảnh đã nén lên GitHub
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          jpegQuality: '75'
-          pngQuality: '80'
-          webpQuality: '80'
+          commit_message: "Tự động nén ảnh tối ưu dung lượng"
