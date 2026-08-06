@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Tiệm Hoa Nhà Sen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Quicksand', sans-serif; background-color: #f4f4f9; padding: 2rem; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        
+        .container { background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 600px; height: fit-content; }
+        h2 { color: #e5989b; text-align: center; margin-top: 0; font-size: 1.8rem; }
+        
+        /* Form Đăng nhập */
+        #login-section { display: flex; flex-direction: column; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; transition: border 0.3s; }
+        .input-group input:focus { border-color: #e5989b; }
+        .btn { background: #e5989b; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; width: 100%; transition: background 0.3s; }
+        .btn:hover { background: #d57a7d; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        
+        /* Bảng Quản trị */
+        #admin-section { display: none; }
+        .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .logout-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+        
+        .upload-area { border: 2px dashed #e5989b; padding: 2rem; text-align: center; border-radius: 8px; background: #fffafb; margin-bottom: 15px; }
+        .upload-area input { display: none; }
+        .upload-btn-label { background: #e5989b; color: white; padding: 10px 20px; border-radius: 5px; cursor: pointer; display: inline-block; font-weight: 600; }
+        
+        #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; color: #4a4a4a; }
+        .error-msg { color: #ff4d4d; font-size: 0.9rem; text-align: center; min-height: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- GIAO DIỆN ĐĂNG NHẬP -->
+        <div id="login-section">
+            <h2>Đăng Nhập Quản Trị</h2>
+            <div class="error-msg" id="login-error"></div>
+            <div class="input-group">
+                <label>Tài khoản</label>
+                <input type="text" id="username" placeholder="Nhập tên đăng nhập">
+            </div>
+            <div class="input-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="password" placeholder="Nhập mật khẩu">
+            </div>
+            <button class="btn" id="login-btn" onclick="handleLogin()">Đăng Nhập</button>
+        </div>
+
+        <!-- GIAO DIỆN QUẢN TRỊ (UPLOAD) -->
+        <div id="admin-section">
+            <div class="header-admin">
+                <h2 style="margin: 0; font-size: 1.5rem;">Upload Hoa Mới</h2>
+                <button class="logout-btn" onclick="handleLogout()">Đăng xuất</button>
+            </div>
+            
+            <div class="upload-area">
+                <p>Chọn ảnh để tải lên (Trang chủ sẽ tự động cập nhật sau 1-2 phút)</p>
+                <label class="upload-btn-label" for="file-input">Chọn Ảnh Upload</label>
+                <input type="file" id="file-input" multiple accept="image/*">
+            </div>
+            
+            <div id="status"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const loginSection = document.getElementById('login-section');
+        const adminSection = document.getElementById('admin-section');
+        const statusDiv = document.getElementById('status');
+        const loginError = document.getElementById('login-error');
+        const fileInput = document.getElementById('file-input');
+
+        // Kiểm tra xem đã đăng nhập trong session chưa
+        window.onload = () => {
+            if (sessionStorage.getItem('sen_auth_user') && sessionStorage.getItem('sen_auth_pass')) {
+                showAdmin();
+            }
+        };
+
+        // Hàm Đăng Nhập
+        async function handleLogin() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            const btn = document.getElementById('login-btn');
+
+            if(!user || !pass) {
+                loginError.innerText = "Vui lòng nhập đủ thông tin!";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Đang kiểm tra...";
+            loginError.innerText = "";
+
+            try {
+                // Gọi tới serverless function để test mật khẩu
+                const res = await fetch('/.netlify/functions/upload', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'verify', username: user, password: pass })
+                });
+                
+                const data = await res.json();
+
+                if(res.status === 200) {
+                    sessionStorage.setItem('sen_auth_user', user);
+                    sessionStorage.setItem('sen_auth_pass', pass);
+                    showAdmin();
+                } else {
+                    loginError.innerText = data.message || "Đăng nhập thất bại!";
+                }
+            } catch (error) {
+                loginError.innerText = "Lỗi kết nối máy chủ!";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Đăng Nhập";
+            }
+        }
+
+        // Hàm Đăng Xuất
+        function handleLogout() {
+            sessionStorage.removeItem('sen_auth_user');
+            sessionStorage.removeItem('sen_auth_pass');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            adminSection.style.display = 'none';
+            loginSection.style.display = 'flex';
+        }
+
+        // Chuyển giao diện
+        function showAdmin() {
+            loginSection.style.display = 'none';
+            adminSection.style.display = 'block';
+            statusDiv.innerText = "";
+        }
+
+        // Xử lý Upload Ảnh
+        fileInput.addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            const user = sessionStorage.getItem('sen_auth_user');
+            const pass = sessionStorage.getItem('sen_auth_pass');
+
+            statusDiv.style.color = '#e5989b';
+            statusDiv.innerText = `Đang tải lên ${files.length} ảnh... Vui lòng không đóng trang.`;
+
+            let successCount = 0;
+
+            for (let file of files) {
+                const reader = new FileReader();
+                
+                // Dùng Promise để tải lần lượt từng ảnh tránh quá tải Function
+                await new Promise((resolve) => {
+                    reader.onload = async (event) => {
+                        const base64Data = event.target.result;
+                        const fileName = Date.now() + "_" + file.name.replace(/\s+/g, '-'); 
+
+                        try {
+                            const res = await fetch('/.netlify/functions/upload', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    username: user,
+                                    password: pass,
+                                    image: base64Data,
+                                    filename: fileName
+                                })
+                            });
+                            
+                            if(res.status === 200) {
+                                successCount++;
+                            } else if (res.status === 401) {
+                                alert("Phiên đăng nhập hết hạn hoặc sai mật khẩu!");
+                                handleLogout();
+                            }
+                        } catch (error) {
+                            console.error("Lỗi upload file: ", file.name);
+                        }
+                        resolve();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            if(successCount > 0) {
+                statusDiv.style.color = '#4CAF50';
+                statusDiv.innerText = `Hoàn tất! Đã lưu ${successCount}/${files.length} ảnh. Trang web sẽ tự động cập nhật sau ít phút.`;
+            } else {
+                statusDiv.style.color = '#ff4d4d';
+                statusDiv.innerText = "Tải lên thất bại. Vui lòng thử lại!";
+            }
+            
+            // Xóa input để có thể chọn lại ảnh vừa up nếu cần
+            fileInput.value = ''; 
+        });
+    </script>
+</body>
+</html>
