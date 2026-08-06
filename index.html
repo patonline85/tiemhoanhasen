@@ -15,11 +15,42 @@
         body { margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; background-color: var(--bg-color); color: var(--text-color); }
         
         /* Header & Tiêu đề */
-        header { text-align: center; padding: 3rem 1rem 2rem; position: relative; }
-        .shop-title { font-family: 'Dancing Script', cursive; font-size: 4.8rem; margin: 0 0 15px 0; color: var(--primary-color); text-shadow: 2px 2px 4px rgba(229, 152, 155, 0.15); }
+        header { text-align: center; padding: 3rem 1rem 2rem; position: relative; overflow: hidden; }
+        
+        /* KHỐI CHỨA TIÊU ĐỀ VÀ HÌNH NỀN HOA SEN */
+        .title-wrapper {
+            position: relative;
+            display: inline-block;
+            padding: 30px 20px;
+            margin-bottom: 5px;
+        }
 
-        /* Phần Liên hệ */
-        .contact-section { margin-top: 20px; }
+        /* HOA SEN LÀM NỀN CHÌM (WATERMARK) */
+        .lotus-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Căn chính giữa khối chữ */
+            width: 320px; /* Kích thước phù hợp với tỷ lệ vuông của SVG mới */
+            height: auto;
+            opacity: 0.08; /* Làm mờ 8% để tôn chữ lên */
+            color: var(--primary-color);
+            z-index: 0; /* Lớp dưới cùng */
+            pointer-events: none; /* Không cản trở click */
+        }
+
+        .shop-title { 
+            font-family: 'Dancing Script', cursive; 
+            font-size: 4.8rem; 
+            margin: 0; 
+            color: var(--primary-color); 
+            text-shadow: 2px 2px 4px rgba(229, 152, 155, 0.15);
+            position: relative;
+            z-index: 1; /* Lớp nổi lên trên hoa sen */
+        }
+
+        /* Phần Liên hệ Top */
+        .contact-section { margin-top: 10px; position: relative; z-index: 2; }
         .contact-prompt { font-size: 1.1rem; color: #888; margin-bottom: 12px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
         .social-links { display: flex; justify-content: center; gap: 20px; }
         .social-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.06); transition: all 0.3s ease; color: var(--primary-color); text-decoration: none; }
@@ -46,38 +77,69 @@
 
         .img-wrapper { width: 100%; height: 100%; border-radius: 12px; overflow: hidden; }
         
-        /* Hiệu ứng mờ đi để tráo ảnh (Opacity Transition) */
-        .img-wrapper img { 
-            width: 100%; height: 100%; object-fit: cover; 
-            /* Thêm opacity vào transition để làm mờ nhẹ nhàng */
-            transition: transform 0.5s ease, opacity 0.8s ease-in-out; 
-        }
+        .img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease, opacity 0.8s ease-in-out; }
         .image-card:hover .img-wrapper img { transform: scale(1.08); }
         
-        /* Class sẽ được JS gọi ra khi muốn làm mờ ảnh */
         .img-fade-out { opacity: 0.1 !important; }
-
         @keyframes fadeUpStagger { to { opacity: 1; transform: translateY(0); } }
 
-        /* Lightbox */
-        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        /* LIGHTBOX (PHÓNG TO CÓ NÚT LIÊN HỆ) */
+        .lightbox { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(253, 251, 251, 0.98);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; 
+        }
+        
         .lightbox.active { opacity: 1; pointer-events: auto; }
-        .lightbox img { max-width: 90%; max-height: 90vh; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
-        .close-lightbox { position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: var(--text-color); cursor: pointer; font-weight: bold; transition: color 0.2s; }
+        
+        .lightbox-content { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        .lightbox img { max-width: 90vw; max-height: 68vh; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); }
+        
+        .lightbox-contact {
+            margin-top: 25px; display: flex; flex-direction: column; align-items: center;
+            opacity: 0; transform: translateY(20px); transition: all 0.5s ease 0.2s; 
+        }
+
+        .lightbox.active .lightbox-contact { opacity: 1; transform: translateY(0); }
+        .lightbox .contact-prompt { color: var(--primary-color); margin-bottom: 15px; font-weight: 600; }
+        .lightbox .social-btn { box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+
+        .close-lightbox { 
+            position: absolute; top: 20px; right: 30px; font-size: 3rem; 
+            color: var(--text-color); cursor: pointer; font-weight: 300; 
+            transition: color 0.2s; z-index: 1001; 
+        }
         .close-lightbox:hover { color: var(--primary-color); }
 
         /* Responsive Mobile */
         @media (max-width: 768px) {
             .shop-title { font-size: 3.5rem; }
+            .lotus-bg { width: 220px; } /* Thu nhỏ cho vừa đt */
+            .title-wrapper { padding: 20px 10px; }
             .image-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; gap: 10px; }
             .card-wide, .card-large { grid-column: span 2; }
+            .lightbox img { max-height: 60vh; } 
+            .lightbox-contact { margin-top: 20px; }
+            .close-lightbox { top: 10px; right: 20px; font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1 class="shop-title">Tiệm Hoa Nhà Sen</h1>
+        <!-- KHỐI CHỨA TIÊU ĐỀ + HOA SEN MỚI CỦA BẠN -->
+        <div class="title-wrapper">
+            <svg class="lotus-bg" viewBox="0 0 233.61 233.61" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                <path d="M159.341,104.337c0,20.616-8.109,39.96-22.728,55.205c-4.171,4.356-3.109,7.787,2.912,7.345 c17.035-1.265,33.134-7.966,45.509-20.347c15.06-15.06,21.761-35.628,20.431-56.691c-0.382-6.027-6.212-11.85-12.238-12.226 c-8.992-0.561-17.889,0.346-26.314,2.739c-5.818,1.653-8.998,8.193-8.252,13.783C159.114,97.499,159.341,100.9,159.341,104.337z"></path>
+                <path d="M228.425,131.272c-2.81-2.029-5.71-3.867-8.706-5.507c-5.305-2.9-11.361,0.137-13.986,5.573 c-3.729,7.727-8.718,14.816-14.929,21.015c-14.798,14.804-35.115,23.002-57.222,23.002c-0.489,0-0.979-0.006-1.48-0.024 c-0.817-0.024,2.649,2.613,8.169,5.084c13.819,6.17,29.136,8.139,44.376,4.708c20.783-4.672,37.436-18.467,47.574-36.977 C235.12,142.841,233.306,134.81,228.425,131.272z"></path>
+                <path d="M100.024,175.355c-22.095,0-42.418-8.204-57.222-23.002c-6.206-6.212-11.194-13.3-14.923-21.015 c-2.625-5.436-8.7-8.479-13.992-5.579c-2.995,1.641-5.901,3.479-8.7,5.513c-4.887,3.544-6.695,11.57-3.795,16.874 c10.126,18.521,26.785,32.317,47.568,36.983c15.233,3.431,30.55,1.462,44.376-4.708c5.513-2.464,8.98-5.096,8.163-5.084 C101.002,175.349,100.513,175.355,100.024,175.355z"></path>
+                <path d="M94.248,166.894c6.027,0.43,7.083-3.019,2.906-7.375c-14.595-15.239-22.71-34.572-22.71-55.188 c0-3.425,0.227-6.814,0.668-10.15c0.74-5.573-2.44-12.107-8.246-13.772c-8.479-2.434-17.441-3.359-26.505-2.792 c-6.027,0.376-11.844,6.2-12.226,12.226c-1.331,21.063,5.37,41.625,20.431,56.685C60.989,158.952,77.153,165.671,94.248,166.894z"></path>
+                <path d="M125.544,49.8c-4.529-3.992-12.769-3.992-17.298,0c-15.836,13.951-25.64,33.224-25.64,54.531 c0,21.302,9.804,40.587,25.64,54.537c4.529,3.986,12.769,3.986,17.298,0c15.836-13.951,25.64-33.229,25.64-54.537 C151.184,83.029,141.38,63.75,125.544,49.8z"></path>
+            </svg>
+            <h1 class="shop-title">Tiệm Hoa Nhà Sen</h1>
+        </div>
+        
         <div class="contact-section">
             <div class="contact-prompt">— Liên hệ Ngay —</div>
             <div class="social-links">
@@ -102,14 +164,31 @@
         <div class="image-grid" id="old-flowers-grid"></div>
     </div>
 
-    <!-- Lightbox -->
+    <!-- LIGHTBOX CHỐT ĐƠN -->
     <div class="lightbox" id="lightbox">
         <span class="close-lightbox" id="close-lightbox">&times;</span>
-        <img id="lightbox-img" src="" alt="Zoomed Flower">
+        
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="Zoomed Flower">
+            
+            <div class="lightbox-contact">
+                <div class="contact-prompt">— Liên hệ đặt bó này —</div>
+                <div class="social-links">
+                    <a href="http://zaloapp.com/qr/p/tljmod5q6mj1" class="social-btn" title="Zalo" target="_blank" rel="noopener noreferrer">
+                        <svg viewBox="0 0 24 24"><path d="M21 11.5c0-4.14-3.58-7.5-8-7.5s-8 3.36-8 7.5c0 1.95 0.81 3.73 2.15 5.1l-1.35 3.32c-0.1 0.25 0.17 0.5 0.4 0.37l3.87-2.14c0.92 0.27 1.9 0.42 2.93 0.42 4.42 0 8-3.36 8-7.5z" stroke="currentColor" stroke-width="1.5" fill="none"/><text x="12" y="15.5" font-size="7.5" font-family="Arial" font-weight="bold" text-anchor="middle" fill="currentColor">Zalo</text></svg>
+                    </a>
+                    <a href="https://m.me/tiemhoanhasen.com.vn" class="social-btn" title="Messenger" target="_blank" rel="noopener noreferrer">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.13 2 11.23c0 2.91 1.48 5.49 3.79 7.18V22l3.46-1.9c1.07 0.3 2.22 0.47 3.42 0.47 5.52 0 10-4.13 10-9.23S17.52 2 12 2zm1.18 12.35l-3.08-3.29-6.02 3.29 6.64-7.05 3.1 3.29 5.99-3.29-6.63 7.05z"/></svg>
+                    </a>
+                    <a href="https://www.facebook.com/tiemhoanhasen.com.vn" class="social-btn" title="Facebook" target="_blank" rel="noopener noreferrer">
+                        <svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H7v-3h3V9.5C10 6.53 11.75 5 14.43 5c1.31 0 2.68.23 2.68.23v2.95h-1.51c-1.49 0-1.95.93-1.95 1.88V12h3.32l-.53 3h-2.79v6.8C18.56 20.87 22 16.84 22 12z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Đảo lộn mảng
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -132,9 +211,8 @@
                     return;
                 }
 
-                // TĂNG SỐ LƯỢNG ẢNH HIỂN THỊ
-                let newImages = allImages.slice(0, 40); // 40 ảnh cho mục đầu
-                let oldImages = allImages.slice(40, 60); // 20 ảnh cho mục sau
+                let newImages = allImages.slice(0, 40); 
+                let oldImages = allImages.slice(40, 60); 
 
                 newImages = shuffleArray(newImages);
                 oldImages = shuffleArray(oldImages);
@@ -142,7 +220,6 @@
                 renderGrid('new-flowers-grid', newImages);
                 renderGrid('old-flowers-grid', oldImages);
 
-                // Khởi động hiệu ứng tráo đổi ảnh sau khi render xong
                 startRandomSwapEffect();
 
             } catch (error) {
@@ -159,7 +236,6 @@
                 card.className = 'image-card';
                 card.style.animationDelay = `${index * 0.05}s`; 
 
-                // Gán kích thước ngẫu nhiên
                 const randomShape = Math.random();
                 if (randomShape > 0.9) { card.classList.add('card-large'); }
                 else if (randomShape > 0.8) { card.classList.add('card-wide'); }
@@ -171,9 +247,7 @@
                     </div>
                 `;
                 
-                // Mở Lightbox
                 card.addEventListener('click', () => {
-                    // Lấy link ảnh hiện tại trong thẻ img (vì nó có thể đã bị tráo đổi bởi hiệu ứng)
                     const currentImgSrc = card.querySelector('img').src;
                     document.getElementById('lightbox-img').src = currentImgSrc;
                     document.getElementById('lightbox').classList.add('active');
@@ -183,18 +257,13 @@
             });
         }
 
-        // TÍNH NĂNG ĐỔI ẢNH TỰ ĐỘNG
         function startRandomSwapEffect() {
-            // Cứ mỗi 3.5 giây sẽ thực hiện tráo đổi 1 lần
             setInterval(() => {
-                // Chỉ tráo đổi ở phần Mùa Hoa Nở để hút mắt
                 const images = document.querySelectorAll('#new-flowers-grid .img-wrapper img');
                 if (images.length < 2) return;
 
-                // Chọn ngẫu nhiên 2 bức ảnh
                 let idx1 = Math.floor(Math.random() * images.length);
                 let idx2 = Math.floor(Math.random() * images.length);
-                // Đảm bảo không chọn trùng 1 ảnh
                 while (idx1 === idx2) {
                     idx2 = Math.floor(Math.random() * images.length);
                 }
@@ -202,17 +271,14 @@
                 const img1 = images[idx1];
                 const img2 = images[idx2];
 
-                // Bước 1: Làm mờ cả 2 ảnh
                 img1.classList.add('img-fade-out');
                 img2.classList.add('img-fade-out');
 
-                // Bước 2: Đợi 800ms (bằng thời gian CSS transition) rồi đổi link ảnh
                 setTimeout(() => {
                     const tempSrc = img1.src;
                     img1.src = img2.src;
                     img2.src = tempSrc;
 
-                    // Bước 3: Làm rõ ảnh trở lại
                     img1.classList.remove('img-fade-out');
                     img2.classList.remove('img-fade-out');
                 }, 800);
@@ -220,9 +286,15 @@
             }, 3500); 
         }
 
-        // Đóng Lightbox
-        document.getElementById('close-lightbox').addEventListener('click', () => { document.getElementById('lightbox').classList.remove('active'); });
-        document.getElementById('lightbox').addEventListener('click', (e) => { if (e.target.id === 'lightbox') { e.target.classList.remove('active'); } });
+        // Đóng Lightbox 
+        document.getElementById('close-lightbox').addEventListener('click', () => { 
+            document.getElementById('lightbox').classList.remove('active'); 
+        });
+        document.getElementById('lightbox').addEventListener('click', (e) => { 
+            if (e.target.id === 'lightbox' || e.target.classList.contains('lightbox-content')) { 
+                e.target.closest('.lightbox').classList.remove('active'); 
+            }
+        });
 
         loadImages();
     </script>
