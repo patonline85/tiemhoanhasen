@@ -12,98 +12,55 @@
             --text-color: #4a4a4a;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Quicksand', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-
-        /* Header & Tiêu đề */
-        header {
-            text-align: center;
-            padding: 3rem 1rem 2rem;
-            position: relative;
-        }
+        body { margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; background-color: var(--bg-color); color: var(--text-color); }
         
-        .shop-title {
-            font-family: 'Dancing Script', cursive;
-            font-size: 4.8rem;
-            margin: 0 0 15px 0;
-            color: var(--primary-color);
-            text-shadow: 2px 2px 4px rgba(229, 152, 155, 0.15);
-        }
+        /* Header & Tiêu đề */
+        header { text-align: center; padding: 3rem 1rem 2rem; position: relative; }
+        .shop-title { font-family: 'Dancing Script', cursive; font-size: 4.8rem; margin: 0 0 15px 0; color: var(--primary-color); text-shadow: 2px 2px 4px rgba(229, 152, 155, 0.15); }
 
         /* Phần Liên hệ */
         .contact-section { margin-top: 20px; }
         .contact-prompt { font-size: 1.1rem; color: #888; margin-bottom: 12px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
         .social-links { display: flex; justify-content: center; gap: 20px; }
-        
-        .social-btn {
-            width: 50px; height: 50px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            background: #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.06);
-            transition: all 0.3s ease; color: var(--primary-color); text-decoration: none;
-        }
+        .social-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.06); transition: all 0.3s ease; color: var(--primary-color); text-decoration: none; }
         .social-btn:hover { transform: translateY(-4px) scale(1.05); color: #d57a7d; box-shadow: 0 8px 20px rgba(229, 152, 155, 0.3); }
         .social-btn svg { width: 24px; height: 24px; fill: currentColor; }
 
         /* Tiêu đề mục */
-        .section-title {
-            text-align: center; font-family: 'Playfair Display', serif;
-            font-size: 2.2rem; font-style: italic; margin: 3rem 0 2rem;
-            font-weight: 600; color: #d57a7d; letter-spacing: 1px;
-        }
+        .section-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 2.2rem; font-style: italic; margin: 3rem 0 2rem; font-weight: 600; color: #d57a7d; letter-spacing: 1px; }
 
         .gallery-container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
 
-        /* --- CẤU TRÚC LƯỚI ẢNH LIỀN MẠCH (MOSAIC) --- */
-        .image-grid {
-            display: grid;
-            /* Đặt chiều rộng cột mặc định */
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            /* Đặt chiều cao hàng cố định để dễ dàng nhân đôi tỷ lệ */
-            grid-auto-rows: 200px;
-            /* Phép màu ở đây: Trình duyệt tự tìm ảnh nhỏ nhét vào khe hở */
-            grid-auto-flow: dense; 
-            gap: 15px;
-            margin-bottom: 3rem;
-        }
-
+        /* LƯỚI ẢNH LIỀN MẠCH */
+        .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); grid-auto-rows: 200px; grid-auto-flow: dense; gap: 15px; margin-bottom: 3rem; }
+        
         .image-card {
-            position: relative;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 12px 25px rgba(229, 152, 155, 0.25); 
-            opacity: 0; 
-            transform: translateY(30px);
-            animation: fadeUpStagger 0.8s ease forwards;
-            
-            /* Kích thước ô nhỏ (mặc định) */
-            grid-column: span 1;
-            grid-row: span 1;
-            height: 100%;
-            width: 100%;
+            position: relative; border-radius: 12px; cursor: pointer; box-shadow: 0 12px 25px rgba(229, 152, 155, 0.25); 
+            opacity: 0; transform: translateY(30px); animation: fadeUpStagger 0.8s ease forwards;
+            grid-column: span 1; grid-row: span 1; height: 100%; width: 100%; background: #f5f5f5;
         }
 
-        /* Các class biến thể tạo sự ngẫu nhiên lớn nhỏ */
-        .card-tall { grid-row: span 2; } /* Ô cao */
-        .card-wide { grid-column: span 2; } /* Ô rộng ngang */
-        .card-large { grid-column: span 2; grid-row: span 2; } /* Ô to bự */
+        .card-tall { grid-row: span 2; }
+        .card-wide { grid-column: span 2; }
+        .card-large { grid-column: span 2; grid-row: span 2; }
 
         .img-wrapper { width: 100%; height: 100%; border-radius: 12px; overflow: hidden; }
-        .img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        
+        /* Hiệu ứng mờ đi để tráo ảnh (Opacity Transition) */
+        .img-wrapper img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            /* Thêm opacity vào transition để làm mờ nhẹ nhàng */
+            transition: transform 0.5s ease, opacity 0.8s ease-in-out; 
+        }
         .image-card:hover .img-wrapper img { transform: scale(1.08); }
+        
+        /* Class sẽ được JS gọi ra khi muốn làm mờ ảnh */
+        .img-fade-out { opacity: 0.1 !important; }
 
         @keyframes fadeUpStagger { to { opacity: 1; transform: translateY(0); } }
 
-        /* Lightbox (Phóng to ảnh) */
-        .lightbox {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.95); display: flex; align-items: center; justify-content: center;
-            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
+        /* Lightbox */
+        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .lightbox.active { opacity: 1; pointer-events: auto; }
         .lightbox img { max-width: 90%; max-height: 90vh; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
         .close-lightbox { position: absolute; top: 20px; right: 30px; font-size: 2.5rem; color: var(--text-color); cursor: pointer; font-weight: bold; transition: color 0.2s; }
@@ -112,12 +69,7 @@
         /* Responsive Mobile */
         @media (max-width: 768px) {
             .shop-title { font-size: 3.5rem; }
-            .image-grid {
-                grid-template-columns: repeat(2, 1fr); /* Tối đa 2 cột trên đt */
-                grid-auto-rows: 140px; /* Hạ thấp chiều cao cơ sở trên đt */
-                gap: 10px;
-            }
-            /* Trên điện thoại ô rộng sẽ chiếm cả màn hình, ô lớn cũng vậy */
+            .image-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; gap: 10px; }
             .card-wide, .card-large { grid-column: span 2; }
         }
     </style>
@@ -126,7 +78,6 @@
 
     <header>
         <h1 class="shop-title">Tiệm Hoa Nhà Sen</h1>
-        
         <div class="contact-section">
             <div class="contact-prompt">— Liên hệ Ngay —</div>
             <div class="social-links">
@@ -147,7 +98,7 @@
         <div class="section-title">Mùa Hoa Nở</div>
         <div class="image-grid" id="new-flowers-grid"></div>
 
-        <div class="section-title">Cùng Khoe Sắc</div>
+        <div class="section-title">Những Mùa Cũ</div>
         <div class="image-grid" id="old-flowers-grid"></div>
     </div>
 
@@ -158,7 +109,7 @@
     </div>
 
     <script>
-        // Hàm đảo lộn ngẫu nhiên (Shuffle Array)
+        // Đảo lộn mảng
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -181,16 +132,19 @@
                     return;
                 }
 
-                // Cắt 20 ảnh đầu và 10 ảnh sau
-                let newImages = allImages.slice(0, 20);
-                let oldImages = allImages.slice(20, 30);
+                // TĂNG SỐ LƯỢNG ẢNH HIỂN THỊ
+                let newImages = allImages.slice(0, 40); // 40 ảnh cho mục đầu
+                let oldImages = allImages.slice(40, 60); // 20 ảnh cho mục sau
 
-                // Trộn ngẫu nhiên vị trí các ảnh bên trong mỗi vùng
                 newImages = shuffleArray(newImages);
                 oldImages = shuffleArray(oldImages);
 
                 renderGrid('new-flowers-grid', newImages);
                 renderGrid('old-flowers-grid', oldImages);
+
+                // Khởi động hiệu ứng tráo đổi ảnh sau khi render xong
+                startRandomSwapEffect();
+
             } catch (error) {
                 document.getElementById('new-flowers-grid').innerHTML = '<p style="text-align:center; width:100%; grid-column: 1 / -1; color: #ff4d4d;">Lỗi khi tải dữ liệu ảnh.</p>';
             }
@@ -205,16 +159,11 @@
                 card.className = 'image-card';
                 card.style.animationDelay = `${index * 0.05}s`; 
 
-                // Thuật toán gán kích thước ô ngẫu nhiên
-                // Xác suất: ~60% ô nhỏ thường, 20% ô cao, 10% ô rộng ngang, 10% ô to bự
+                // Gán kích thước ngẫu nhiên
                 const randomShape = Math.random();
-                if (randomShape > 0.9) {
-                    card.classList.add('card-large');
-                } else if (randomShape > 0.8) {
-                    card.classList.add('card-wide');
-                } else if (randomShape > 0.6) {
-                    card.classList.add('card-tall');
-                }
+                if (randomShape > 0.9) { card.classList.add('card-large'); }
+                else if (randomShape > 0.8) { card.classList.add('card-wide'); }
+                else if (randomShape > 0.6) { card.classList.add('card-tall'); }
 
                 card.innerHTML = `
                     <div class="img-wrapper">
@@ -222,8 +171,11 @@
                     </div>
                 `;
                 
+                // Mở Lightbox
                 card.addEventListener('click', () => {
-                    document.getElementById('lightbox-img').src = src;
+                    // Lấy link ảnh hiện tại trong thẻ img (vì nó có thể đã bị tráo đổi bởi hiệu ứng)
+                    const currentImgSrc = card.querySelector('img').src;
+                    document.getElementById('lightbox-img').src = currentImgSrc;
                     document.getElementById('lightbox').classList.add('active');
                 });
                 
@@ -231,13 +183,46 @@
             });
         }
 
+        // TÍNH NĂNG ĐỔI ẢNH TỰ ĐỘNG
+        function startRandomSwapEffect() {
+            // Cứ mỗi 3.5 giây sẽ thực hiện tráo đổi 1 lần
+            setInterval(() => {
+                // Chỉ tráo đổi ở phần Mùa Hoa Nở để hút mắt
+                const images = document.querySelectorAll('#new-flowers-grid .img-wrapper img');
+                if (images.length < 2) return;
+
+                // Chọn ngẫu nhiên 2 bức ảnh
+                let idx1 = Math.floor(Math.random() * images.length);
+                let idx2 = Math.floor(Math.random() * images.length);
+                // Đảm bảo không chọn trùng 1 ảnh
+                while (idx1 === idx2) {
+                    idx2 = Math.floor(Math.random() * images.length);
+                }
+
+                const img1 = images[idx1];
+                const img2 = images[idx2];
+
+                // Bước 1: Làm mờ cả 2 ảnh
+                img1.classList.add('img-fade-out');
+                img2.classList.add('img-fade-out');
+
+                // Bước 2: Đợi 800ms (bằng thời gian CSS transition) rồi đổi link ảnh
+                setTimeout(() => {
+                    const tempSrc = img1.src;
+                    img1.src = img2.src;
+                    img2.src = tempSrc;
+
+                    // Bước 3: Làm rõ ảnh trở lại
+                    img1.classList.remove('img-fade-out');
+                    img2.classList.remove('img-fade-out');
+                }, 800);
+
+            }, 3500); 
+        }
+
         // Đóng Lightbox
-        document.getElementById('close-lightbox').addEventListener('click', () => {
-            document.getElementById('lightbox').classList.remove('active');
-        });
-        document.getElementById('lightbox').addEventListener('click', (e) => {
-            if (e.target.id === 'lightbox') { e.target.classList.remove('active'); }
-        });
+        document.getElementById('close-lightbox').addEventListener('click', () => { document.getElementById('lightbox').classList.remove('active'); });
+        document.getElementById('lightbox').addEventListener('click', (e) => { if (e.target.id === 'lightbox') { e.target.classList.remove('active'); } });
 
         loadImages();
     </script>
