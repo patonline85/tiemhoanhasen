@@ -1,15 +1,16 @@
 name: Tối ưu hóa dung lượng ảnh
 
 on:
+  workflow_dispatch: # Thêm dòng này để hiện nút "Run workflow" chạy bằng tay
   push:
     paths:
-      - 'images/**' # Chỉ chạy khi có thay đổi trong thư mục images
+      - 'images/**' # Vẫn giữ lệnh tự động chạy khi có ảnh mới
 
 jobs:
   optimize:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Cấp quyền cho bot được lưu file nén đè lên file cũ
+      contents: write 
 
     steps:
       - name: Checkout code
@@ -19,7 +20,6 @@ jobs:
         uses: calibreapp/image-actions@main
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          jpegQuality: '75' # Chất lượng ảnh JPEG (75% là mức tối ưu)
+          jpegQuality: '75'
           pngQuality: '80'
           webpQuality: '80'
-          # Action này sẽ tự động nén và đẩy (commit) ảnh đã nén thẳng vào Github của bạn
