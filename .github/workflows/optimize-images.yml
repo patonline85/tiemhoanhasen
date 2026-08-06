@@ -1,0 +1,25 @@
+name: Tối ưu hóa dung lượng ảnh
+
+on:
+  push:
+    paths:
+      - 'images/**' # Chỉ chạy khi có thay đổi trong thư mục images
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Cấp quyền cho bot được lưu file nén đè lên file cũ
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Nén ảnh (Compress Images)
+        uses: calibreapp/image-actions@main
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          jpegQuality: '75' # Chất lượng ảnh JPEG (75% là mức tối ưu)
+          pngQuality: '80'
+          webpQuality: '80'
+          # Action này sẽ tự động nén và đẩy (commit) ảnh đã nén thẳng vào Github của bạn
