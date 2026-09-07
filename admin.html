@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Tiệm Hoa Nhà Sen</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Tích hợp thư viện nén ảnh Client-side -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
+    
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Quicksand', sans-serif; background-color: #f4f4f9; padding: 2rem; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
@@ -26,12 +30,33 @@
         .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .logout-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
         
-        .upload-area { border: 2px dashed #e5989b; padding: 2rem; text-align: center; border-radius: 8px; background: #fffafb; margin-bottom: 15px; }
+        .upload-area { border: 2px dashed #e5989b; padding: 2rem; text-align: center; border-radius: 8px; background: #fffafb; margin-bottom: 15px; transition: 0.3s; }
+        .upload-area.disabled { opacity: 0.5; pointer-events: none; }
         .upload-area input { display: none; }
-        .upload-btn-label { background: #e5989b; color: white; padding: 10px 20px; border-radius: 5px; cursor: pointer; display: inline-block; font-weight: 600; }
+        .upload-btn-label { background: #e5989b; color: white; padding: 10px 20px; border-radius: 5px; cursor: pointer; display: inline-block; font-weight: 600; transition: background 0.3s;}
+        .upload-btn-label:hover { background: #d57a7d; }
         
         #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; color: #4a4a4a; }
         .error-msg { color: #ff4d4d; font-size: 0.9rem; text-align: center; min-height: 20px; }
+
+        /* Giao diện Danh sách Tiến trình Upload */
+        #progress-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 300px; overflow-y: auto; padding-right: 5px; }
+        .progress-item { background: #fff; border: 1px solid #eee; padding: 12px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .progress-info { display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+        .file-name { font-weight: 600; color: #4a4a4a; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+        .file-meta { color: #888; font-size: 0.8rem; }
+        .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; text-align: center; min-width: 90px; }
+        
+        /* Màu sắc các trạng thái */
+        .status-waiting { background: #e2e3e5; color: #383d41; }
+        .status-compressing { background: #fff3cd; color: #856404; }
+        .status-uploading { background: #cce5ff; color: #004085; }
+        .status-success { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        
+        /* Tùy chỉnh thanh cuộn */
+        #progress-list::-webkit-scrollbar { width: 6px; }
+        #progress-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -60,13 +85,16 @@
                 <button class="logout-btn" onclick="handleLogout()">Đăng xuất</button>
             </div>
             
-            <div class="upload-area">
-                <p>Chọn ảnh để tải lên (Trang chủ sẽ tự động cập nhật sau 1-2 phút)</p>
+            <div class="upload-area" id="upload-area">
+                <p>Ảnh sẽ được <b>tự động nén</b> trước khi đưa lên hệ thống.</p>
                 <label class="upload-btn-label" for="file-input">Chọn Ảnh Upload</label>
                 <input type="file" id="file-input" multiple accept="image/*">
             </div>
             
             <div id="status"></div>
+
+            <!-- Danh sách tiến trình nén & upload -->
+            <div id="progress-list"></div>
         </div>
 
     </div>
@@ -77,15 +105,24 @@
         const statusDiv = document.getElementById('status');
         const loginError = document.getElementById('login-error');
         const fileInput = document.getElementById('file-input');
+        const progressList = document.getElementById('progress-list');
+        const uploadArea = document.getElementById('upload-area');
 
-        // Kiểm tra xem đã đăng nhập trong session chưa
+        // Hàm chuyển đổi Byte sang KB / MB cho dễ đọc
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
         window.onload = () => {
             if (sessionStorage.getItem('sen_auth_user') && sessionStorage.getItem('sen_auth_pass')) {
                 showAdmin();
             }
         };
 
-        // Hàm Đăng Nhập
         async function handleLogin() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
@@ -101,7 +138,6 @@
             loginError.innerText = "";
 
             try {
-                // Gọi tới serverless function để test mật khẩu
                 const res = await fetch('/.netlify/functions/upload', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'verify', username: user, password: pass })
@@ -124,7 +160,6 @@
             }
         }
 
-        // Hàm Đăng Xuất
         function handleLogout() {
             sessionStorage.removeItem('sen_auth_user');
             sessionStorage.removeItem('sen_auth_pass');
@@ -132,16 +167,16 @@
             document.getElementById('password').value = '';
             adminSection.style.display = 'none';
             loginSection.style.display = 'flex';
+            progressList.innerHTML = '';
+            statusDiv.innerText = '';
         }
 
-        // Chuyển giao diện
         function showAdmin() {
             loginSection.style.display = 'none';
             adminSection.style.display = 'block';
             statusDiv.innerText = "";
         }
 
-        // Xử lý Upload Ảnh
         fileInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
@@ -149,56 +184,109 @@
             const user = sessionStorage.getItem('sen_auth_user');
             const pass = sessionStorage.getItem('sen_auth_pass');
 
+            // Khóa khu vực upload để tránh chọn thêm file khi đang chạy
+            uploadArea.classList.add('disabled');
+            progressList.innerHTML = ''; 
             statusDiv.style.color = '#e5989b';
-            statusDiv.innerText = `Đang tải lên ${files.length} ảnh... Vui lòng không đóng trang.`;
+            statusDiv.innerText = `Đang xử lý ${files.length} ảnh... Vui lòng không đóng trang.`;
 
             let successCount = 0;
 
-            for (let file of files) {
-                const reader = new FileReader();
-                
-                // Dùng Promise để tải lần lượt từng ảnh tránh quá tải Function
-                await new Promise((resolve) => {
-                    reader.onload = async (event) => {
-                        const base64Data = event.target.result;
-                        const fileName = Date.now() + "_" + file.name.replace(/\s+/g, '-'); 
+            // Cấu hình Nén Ảnh
+            const compressionOptions = {
+                maxSizeMB: 0.5, // Nén tối đa 500KB
+                maxWidthOrHeight: 1080, // Chiều ngang/dọc tối đa 1080px
+                useWebWorker: true // Tăng tốc nén bằng Web Worker
+            };
 
-                        try {
-                            const res = await fetch('/.netlify/functions/upload', {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    username: user,
-                                    password: pass,
-                                    image: base64Data,
-                                    filename: fileName
-                                })
-                            });
-                            
-                            if(res.status === 200) {
-                                successCount++;
-                            } else if (res.status === 401) {
-                                alert("Phiên đăng nhập hết hạn hoặc sai mật khẩu!");
-                                handleLogout();
-                            }
-                        } catch (error) {
-                            console.error("Lỗi upload file: ", file.name);
-                        }
-                        resolve();
-                    };
-                    reader.readAsDataURL(file);
-                });
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileId = 'file-' + i;
+                const originalSize = formatBytes(file.size);
+
+                // Tạo UI cho ảnh hiện tại
+                const progressItem = document.createElement('div');
+                progressItem.className = 'progress-item';
+                progressItem.innerHTML = `
+                    <div class="progress-info">
+                        <span class="file-name" title="${file.name}">${file.name}</span>
+                        <span class="file-meta" id="meta-${fileId}">Gốc: ${originalSize} | Chờ xử lý...</span>
+                    </div>
+                    <div class="status-badge status-compressing" id="badge-${fileId}">Đang nén...</div>
+                `;
+                progressList.appendChild(progressItem);
+                
+                // Tự động cuộn xuống cuối danh sách
+                progressList.scrollTop = progressList.scrollHeight;
+
+                try {
+                    const metaSpan = document.getElementById(`meta-${fileId}`);
+                    const badgeSpan = document.getElementById(`badge-${fileId}`);
+
+                    // 1. TIẾN HÀNH NÉN ẢNH
+                    const compressedFile = await imageCompression(file, compressionOptions);
+                    const compressedSize = formatBytes(compressedFile.size);
+                    metaSpan.innerText = `Gốc: ${originalSize} ➔ Nén: ${compressedSize}`;
+
+                    // 2. CHUYỂN SANG TRẠNG THÁI UPLOAD
+                    badgeSpan.className = 'status-badge status-uploading';
+                    badgeSpan.innerText = 'Đang Upload...';
+
+                    // Chuyển file đã nén sang Base64
+                    const base64Data = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(compressedFile);
+                        reader.onload = (event) => resolve(event.target.result);
+                        reader.onerror = (error) => reject(error);
+                    });
+
+                    const fileName = Date.now() + "_" + file.name.replace(/\s+/g, '-'); 
+
+                    // 3. GỬI LÊN GITHUB QUA NETLIFY FUNCTION
+                    const res = await fetch('/.netlify/functions/upload', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            username: user,
+                            password: pass,
+                            image: base64Data,
+                            filename: fileName
+                        })
+                    });
+                    
+                    if(res.status === 200) {
+                        badgeSpan.className = 'status-badge status-success';
+                        badgeSpan.innerText = 'Thành công';
+                        successCount++;
+                    } else if (res.status === 401) {
+                        alert("Phiên đăng nhập hết hạn hoặc sai mật khẩu!");
+                        handleLogout();
+                        break; // Dừng vòng lặp nếu lỗi xác thực
+                    } else {
+                        throw new Error("Lỗi Server trả về");
+                    }
+
+                } catch (error) {
+                    console.error("Lỗi xử lý file: ", file.name, error);
+                    const badgeSpan = document.getElementById(`badge-${fileId}`);
+                    badgeSpan.className = 'status-badge status-error';
+                    badgeSpan.innerText = 'Thất bại';
+                }
             }
 
-            if(successCount > 0) {
+            // Hoàn tất
+            uploadArea.classList.remove('disabled');
+            fileInput.value = ''; 
+
+            if(successCount === files.length) {
                 statusDiv.style.color = '#4CAF50';
-                statusDiv.innerText = `Hoàn tất! Đã lưu ${successCount}/${files.length} ảnh. Trang web sẽ tự động cập nhật sau ít phút.`;
+                statusDiv.innerText = `Hoàn tất xuất sắc! Đã tải lên ${successCount}/${files.length} ảnh.`;
+            } else if (successCount > 0) {
+                statusDiv.style.color = '#e5989b';
+                statusDiv.innerText = `Hoàn tất một phần: ${successCount}/${files.length} ảnh thành công.`;
             } else {
                 statusDiv.style.color = '#ff4d4d';
-                statusDiv.innerText = "Tải lên thất bại. Vui lòng thử lại!";
+                statusDiv.innerText = "Tải lên thất bại toàn bộ. Vui lòng thử lại!";
             }
-            
-            // Xóa input để có thể chọn lại ảnh vừa up nếu cần
-            fileInput.value = ''; 
         });
     </script>
 </body>
