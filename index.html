@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TIỆM HOA NHÀ SEN</title>
     
@@ -50,13 +50,13 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%); /* Căn chính giữa khối chữ */
-            width: 320px; /* Kích thước phù hợp với tỷ lệ vuông của SVG mới */
+            transform: translate(-50%, -50%);
+            width: 320px;
             height: auto;
-            opacity: 0.08; /* Làm mờ 8% để tôn chữ lên */
+            opacity: 0.08;
             color: var(--primary-color);
-            z-index: 0; /* Lớp dưới cùng */
-            pointer-events: none; /* Không cản trở click */
+            z-index: 0;
+            pointer-events: none;
         }
 
         .shop-title { 
@@ -66,7 +66,7 @@
             color: var(--primary-color); 
             text-shadow: 2px 2px 4px rgba(229, 152, 155, 0.15);
             position: relative;
-            z-index: 1; /* Lớp nổi lên trên hoa sen */
+            z-index: 1;
         }
 
         /* Phần Liên hệ Top */
@@ -103,7 +103,7 @@
         .img-fade-out { opacity: 0.1 !important; }
         @keyframes fadeUpStagger { to { opacity: 1; transform: translateY(0); } }
 
-        /* LIGHTBOX (PHÓNG TO CÓ NÚT LIÊN HỆ) */
+        /* LIGHTBOX */
         .lightbox { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(253, 251, 251, 0.98);
@@ -135,13 +135,71 @@
         /* Responsive Mobile */
         @media (max-width: 768px) {
             .shop-title { font-size: 3.5rem; }
-            .lotus-bg { width: 220px; } /* Thu nhỏ cho vừa đt */
+            .lotus-bg { width: 220px; }
             .title-wrapper { padding: 20px 10px; }
             .image-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; gap: 10px; }
             .card-wide, .card-large { grid-column: span 2; }
             .lightbox img { max-height: 60vh; } 
             .lightbox-contact { margin-top: 20px; }
             .close-lightbox { top: 10px; right: 20px; font-size: 2.5rem; }
+        }
+        
+        /* -------------------------------------
+           STYLING CHO NHÓM NÚT CỘNG ĐỒNG 
+           Đồng bộ màu hồng (Primary Color)
+           ------------------------------------- */
+        .community-prompt {
+            margin-top: 30px; 
+            font-size: 0.95rem; /* Hơi nhỏ hơn chữ Liên hệ một chút cho tinh tế */
+        }
+
+        .community-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .community-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 280px;
+            padding: 12px 20px;
+            background-color: #ffffff;
+            /* Lấy màu hồng làm chuẩn cho chữ và viền */
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14.5px;
+            font-weight: 600; /* In đậm chữ để màu hồng dễ đọc hơn */
+            border: 1px solid rgba(229, 152, 155, 0.4); /* Viền hồng nhạt */
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.06); /* Đổ bóng giống hệt nút tròn */
+        }
+
+        .community-btn .btn-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor; /* Tự động nhận màu hồng của chữ */
+        }
+
+        /* Hover Effect: Nảy lên và toả sáng màu hồng giống nút tròn */
+        .community-btn:hover {
+            color: #d57a7d;
+            border-color: #d57a7d;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(229, 152, 155, 0.3); /* Bóng toả màu hồng */
+        }
+
+        @media (min-width: 600px) {
+            .community-links {
+                flex-direction: row;
+                justify-content: center;
+            }
         }
 
         /* Lớp CSS chuẩn SEO */
@@ -170,8 +228,9 @@
             <li>Nhận Làm hoa theo kinh phí, Tặng kèm dưỡng hoa, Chụp hình hoa trước và sau khi giao</li>
         </ul>
     </div>
+    
     <header>
-        <!-- KHỐI CHỨA TIÊU ĐỀ + HOA SEN MỚI CỦA BẠN -->
+        <!-- KHỐI CHỨA TIÊU ĐỀ + HOA SEN LÀM NỀN -->
         <div class="title-wrapper">
             <svg class="lotus-bg" viewBox="0 0 233.61 233.61" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
                 <path d="M159.341,104.337c0,20.616-8.109,39.96-22.728,55.205c-4.171,4.356-3.109,7.787,2.912,7.345 c17.035-1.265,33.134-7.966,45.509-20.347c15.06-15.06,21.761-35.628,20.431-56.691c-0.382-6.027-6.212-11.85-12.238-12.226 c-8.992-0.561-17.889,0.346-26.314,2.739c-5.818,1.653-8.998,8.193-8.252,13.783C159.114,97.499,159.341,100.9,159.341,104.337z"></path>
@@ -184,6 +243,7 @@
         </div>
         
         <div class="contact-section">
+            <!-- Nhóm 1: Liên hệ trực tiếp -->
             <div class="contact-prompt">— Liên hệ Ngay —</div>
             <div class="social-links">
                 <a href="http://zaloapp.com/qr/p/tljmod5q6mj1" class="social-btn" title="Zalo" target="_blank" rel="noopener noreferrer">
@@ -194,6 +254,22 @@
                 </a>
                 <a href="https://www.facebook.com/tiemhoanhasen.com.vn" class="social-btn" title="Facebook" target="_blank" rel="noopener noreferrer">
                     <svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H7v-3h3V9.5C10 6.53 11.75 5 14.43 5c1.31 0 2.68.23 2.68.23v2.95h-1.51c-1.49 0-1.95.93-1.95 1.88V12h3.32l-.53 3h-2.79v6.8C18.56 20.87 22 16.84 22 12z"/></svg>
+                </a>
+            </div>
+
+            <!-- Nhóm 2: Tham gia cộng đồng -->
+            <div class="contact-prompt community-prompt">— Tham Gia Cộng Đồng —</div>
+            <div class="community-links">
+                <a href="https://nhom.tiemhoanhasen.io.vn/" class="community-btn" title="Nhóm cộng đồng Facebook" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" class="btn-icon"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H7v-3h3V9.5C10 6.53 11.75 5 14.43 5c1.31 0 2.68.23 2.68.23v2.95h-1.51c-1.49 0-1.95.93-1.95 1.88V12h3.32l-.53 3h-2.79v6.8C18.56 20.87 22 16.84 22 12z"/></svg>
+                    Cộng đồng Facebook
+                </a>
+                <a href="https://thanthiet.tiemhoanhasen.io.vn" class="community-btn" title="Nhóm Khách hàng thân thiết Zalo" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" class="btn-icon">
+                        <path d="M21 11.5c0-4.14-3.58-7.5-8-7.5s-8 3.36-8 7.5c0 1.95 0.81 3.73 2.15 5.1l-1.35 3.32c-0.1 0.25 0.17 0.5 0.4 0.37l3.87-2.14c0.92 0.27 1.9 0.42 2.93 0.42 4.42 0 8-3.36 8-7.5z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <text x="12" y="15.5" font-size="7.5" font-family="Arial" font-weight="bold" text-anchor="middle" fill="currentColor">Zalo</text>
+                    </svg>
+                    Khách hàng thân thiết
                 </a>
             </div>
         </div>
